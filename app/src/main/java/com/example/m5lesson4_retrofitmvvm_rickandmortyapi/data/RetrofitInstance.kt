@@ -1,0 +1,14 @@
+package com.example.m5lesson4_retrofitmvvm_rickandmortyapi.data
+
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+
+object RetrofitInstance {
+
+    val api: CartoonApiService = Retrofit.Builder()
+        .baseUrl("https://rickandmortyapi.com/api/")
+        .addConverterFactory(GsonConverterFactory.create())
+        .build()
+        .create(CartoonApiService::class.java)
+
+}
