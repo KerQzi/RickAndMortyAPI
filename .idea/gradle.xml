@@ -14,4 +14,7 @@
           </set>
         </option>
         <option name="resolveExternalAnnotations" value="false" />
-    
+      </GradleProjectSettings>
+    </option>
+  </component>
+</project>

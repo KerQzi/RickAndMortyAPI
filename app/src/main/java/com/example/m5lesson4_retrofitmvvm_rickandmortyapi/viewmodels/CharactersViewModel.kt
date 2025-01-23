@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import com.example.m5lesson4_retrofitmvvm_rickandmortyapi.data.RetrofitInstance
 import com.example.m5lesson4_retrofitmvvm_rickandmortyapi.data.models.BaseResponse
 import com.example.m5lesson4_retrofitmvvm_rickandmortyapi.data.models.Character
+import com.example.m5lesson4_retrofitmvvm_rickandmortyapi.data.models.episodes.Episode
 import retrofit2.Call
 import retrofit2.Response
 
@@ -18,6 +19,9 @@ class CharactersViewModel : ViewModel(){
 
     private val _errorData = MutableLiveData<String>()
     val errorData: LiveData<String> get() = _errorData
+
+    private val _episodeData = MutableLiveData<Episode>()
+    val episodeData: LiveData<Episode> get() = _episodeData
 
     fun getCharacters() {
         api.getCharacters().enqueue(object : retrofit2.Callback<BaseResponse> {
@@ -35,4 +39,19 @@ class CharactersViewModel : ViewModel(){
 
         })
     }
+
+    fun getEpisode(url: String) {
+        api.getEpisode(url).enqueue(object : retrofit2.Callback<Episode> {
+            override fun onResponse(call: Call<Episode>, response: Response<Episode>) {
+                if (response.isSuccessful && response.body() != null) {
+                    _episodeData.postValue(response.body())
+                }
+            }
+
+            override fun onFailure(call: Call<Episode>, t: Throwable) {
+                _errorData.postValue(t.localizedMessage ?: "Unknown error")
+            }
+        })
+    }
+
 }

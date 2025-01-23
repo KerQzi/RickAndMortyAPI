@@ -21,7 +21,19 @@ class CharactersAdapter: ListAdapter<Character, CharactersAdapter.ViewHolder>(Di
                 status.text = item?.status
                 species.text = item?.species
                 location.text = item?.location?.name ?: "???"
-                firstSeen.text = item?.episode?.get(0) ?: "???"
+//                firstSeen.text = item?.episode?.get(0) ?: "???"  раньше так было
+
+                // это рабочий вариант получения первого эпизода
+                item?.episode?.getOrNull(0)?.let { episodeUrl ->
+                    viewModel.getEpisode(episodeUrl)
+                    viewModel.episodeData.observeForever { episode ->
+                        firstSeen.text = episode?.name ?: "???"
+                    }
+                } ?: run {
+                    firstSeen.text = "???"
+                }
+
+
                 Glide.with(image).load(item?.image).into(this.image)
 
                 val characterStatus = when (item?.status) {
