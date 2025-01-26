@@ -7,5 +7,5 @@ data class EpisodeResponse(
     @SerializedName("info")
     val info: Info? = null,
     @SerializedName("results")
-    val episodes: List<Episode?>? = null
+    val episodes: List<Episode>? = null
 )

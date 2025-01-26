@@ -11,28 +11,24 @@ import com.example.m5lesson4_retrofitmvvm_rickandmortyapi.databinding.CharacterI
 import com.example.m5lesson4_retrofitmvvm_rickandmortyapi.data.models.Character
 import com.example.m5lesson4_retrofitmvvm_rickandmortyapi.viewmodels.CharactersViewModel
 
-class CharactersAdapter: ListAdapter<Character, CharactersAdapter.ViewHolder>(DiffCallback()) {
+class CharactersAdapter(private val viewModel: CharactersViewModel) : ListAdapter<Character, CharactersAdapter.ViewHolder>(DiffCallback()) {
 
-    class ViewHolder(private val binding: CharacterItemBinding) : RecyclerView.ViewHolder(binding.root) {
-        private val viewModel by lazy { CharactersViewModel() }
+    class ViewHolder(private val binding: CharacterItemBinding, private val viewModel: CharactersViewModel) : RecyclerView.ViewHolder(binding.root) {
+
         fun bind(item: Character?) {
             binding.apply {
                 name.text = item?.name
                 status.text = item?.status
                 species.text = item?.species
                 location.text = item?.location?.name ?: "???"
-//                firstSeen.text = item?.episode?.get(0) ?: "???"  раньше так было
 
-                // это рабочий вариант получения первого эпизода
-                item?.episode?.getOrNull(0)?.let { episodeUrl ->
-                    viewModel.getEpisode(episodeUrl)
-                    viewModel.episodeData.observeForever { episode ->
-                        firstSeen.text = episode?.name ?: "???"
+                item?.episode?.firstOrNull()?.let { episodeUrl ->
+                    viewModel.getEpisodeNameForCharacter(episodeUrl) { episodeName ->
+                        binding.firstSeen.text = episodeName
                     }
                 } ?: run {
-                    firstSeen.text = "???"
+                    binding.firstSeen.text = "???"
                 }
-
 
                 Glide.with(image).load(item?.image).into(this.image)
 
@@ -44,20 +40,20 @@ class CharactersAdapter: ListAdapter<Character, CharactersAdapter.ViewHolder>(Di
                 statusIcon.imageTintList = statusIcon.context.getColorStateList(characterStatus.colorResId)
             }
         }
-
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        return ViewHolder(CharacterItemBinding.inflate(LayoutInflater.from(parent.context), parent, false))
+        return ViewHolder(
+            CharacterItemBinding.inflate(LayoutInflater.from(parent.context), parent, false),
+            viewModel
+        )
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.bind(getItem(position))
-
     }
 
-
-    class DiffCallback: DiffUtil.ItemCallback<Character>() {
+    class DiffCallback : DiffUtil.ItemCallback<Character>() {
         override fun areItemsTheSame(oldItem: Character, newItem: Character): Boolean {
             return oldItem.id == newItem.id
         }
@@ -65,6 +61,5 @@ class CharactersAdapter: ListAdapter<Character, CharactersAdapter.ViewHolder>(Di
         override fun areContentsTheSame(oldItem: Character, newItem: Character): Boolean {
             return oldItem == newItem
         }
-
     }
 }
