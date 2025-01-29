@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     id("kotlin-kapt")
     id("com.google.dagger.hilt.android")
+    id("androidx.navigation.safeargs")
 }
 
 android {
@@ -61,5 +62,14 @@ dependencies {
     implementation("androidx.navigation:navigation-ui-ktx:2.6.0")
 
     implementation("com.airbnb.android:lottie:6.0.0")
+
+    implementation("androidx.room:room-runtime:2.6.1")
+    kapt("androidx.room:room-compiler:2.6.1")
+
+    implementation("io.coil-kt.coil3:coil:3.0.4")
+    implementation("io.coil-kt.coil3:coil-network-okhttp:3.0.4")
+
+    implementation ("org.jetbrains.kotlin:kotlin-stdlib")
+    implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.2")
 
 }

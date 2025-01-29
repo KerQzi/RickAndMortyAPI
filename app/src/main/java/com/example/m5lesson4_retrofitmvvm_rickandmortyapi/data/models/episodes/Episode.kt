@@ -2,6 +2,7 @@ package com.example.m5lesson4_retrofitmvvm_rickandmortyapi.data.models.episodes
 
 
 import com.google.gson.annotations.SerializedName
+import java.io.Serializable
 
 data class Episode(
     @SerializedName("id")

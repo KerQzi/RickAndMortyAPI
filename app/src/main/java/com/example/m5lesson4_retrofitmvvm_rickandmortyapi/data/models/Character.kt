@@ -1,8 +1,11 @@
 package com.example.m5lesson4_retrofitmvvm_rickandmortyapi.data.models
 
 
+import androidx.room.Entity
 import com.google.gson.annotations.SerializedName
+import java.io.Serializable
 
+@Entity(tableName = "characters")
 data class Character(
     @SerializedName("id")
     val id: Int? = null,
@@ -28,4 +31,4 @@ data class Character(
     val url: String? = null,
     @SerializedName("created")
     val created: String? = null
-)
+): Serializable
