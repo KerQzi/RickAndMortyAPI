@@ -35,6 +35,8 @@ class CharactersViewModel @Inject constructor(
     private val _episodeName = MutableLiveData<String>()
     val episodeName: LiveData<String> get() = _episodeName
 
+    private val episodeCache = mutableMapOf<String, String>()
+
     fun getCharacters() {
         api.getCharacters().enqueue(object : Callback<BaseResponse> {
             override fun onResponse(call: Call<BaseResponse>, response: Response<BaseResponse>) {
@@ -55,15 +57,41 @@ class CharactersViewModel @Inject constructor(
         })
     }
 
+//    fun getEpisodeNameForCharacter(episodeUrl: String, callback: (String) -> Unit) {
+//        api.getEpisodeName(episodeUrl).enqueue(object : Callback<Episode> {
+//            override fun onResponse(call: Call<Episode>, response: Response<Episode>) {
+//                if (response.isSuccessful) {
+//                    val episodeName = response.body()?.name ?: "???"
+//                    callback(episodeName)
+//                } else {
+//                    callback("???")
+//                }
+//            }
+//
+//            override fun onFailure(call: Call<Episode>, t: Throwable) {
+//                callback("???")
+//            }
+//        })
+//    }
+
     fun getEpisodeNameForCharacter(episodeUrl: String, callback: (String) -> Unit) {
+        // Если значение уже есть в кэше, возвращаем его и выходим
+        episodeCache[episodeUrl]?.let { cachedName ->
+            callback(cachedName)
+            return
+        }
+
+        // Иначе делаем сетевой запрос
         api.getEpisodeName(episodeUrl).enqueue(object : Callback<Episode> {
             override fun onResponse(call: Call<Episode>, response: Response<Episode>) {
-                if (response.isSuccessful) {
-                    val episodeName = response.body()?.name ?: "???"
-                    callback(episodeName)
+                val fetchedName = if (response.isSuccessful) {
+                    response.body()?.name ?: "???"
                 } else {
-                    callback("???")
+                    "???"
                 }
+                // Сохраняем в кэш
+                episodeCache[episodeUrl] = fetchedName
+                callback(fetchedName)
             }
 
             override fun onFailure(call: Call<Episode>, t: Throwable) {
