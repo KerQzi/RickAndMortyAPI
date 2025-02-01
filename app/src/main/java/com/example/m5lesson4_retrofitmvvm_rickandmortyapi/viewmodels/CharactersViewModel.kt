@@ -6,10 +6,16 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.PagingSource
+import androidx.paging.liveData
 import com.example.m5lesson4_retrofitmvvm_rickandmortyapi.data.CartoonApiService
 import com.example.m5lesson4_retrofitmvvm_rickandmortyapi.data.models.BaseResponse
 import com.example.m5lesson4_retrofitmvvm_rickandmortyapi.data.models.Character
 import com.example.m5lesson4_retrofitmvvm_rickandmortyapi.data.models.episodes.Episode
+import com.example.m5lesson4_retrofitmvvm_rickandmortyapi.data.pagingSource.CharactersPagingSource
 import com.example.m5lesson4_retrofitmvvm_rickandmortyapi.data.room.CharacterDao
 import com.example.m5lesson4_retrofitmvvm_rickandmortyapi.data.room.CharacterEntity
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -23,7 +29,8 @@ import javax.inject.Inject
 @HiltViewModel
 class CharactersViewModel @Inject constructor(
     private val api: CartoonApiService,
-    private val characterDao: CharacterDao
+    private val characterDao: CharacterDao,
+    private val pagingSource: CharactersPagingSource
 ) : ViewModel() {
 
     private val _charactersData = MutableLiveData<List<Character>>()
@@ -57,31 +64,23 @@ class CharactersViewModel @Inject constructor(
         })
     }
 
-//    fun getEpisodeNameForCharacter(episodeUrl: String, callback: (String) -> Unit) {
-//        api.getEpisodeName(episodeUrl).enqueue(object : Callback<Episode> {
-//            override fun onResponse(call: Call<Episode>, response: Response<Episode>) {
-//                if (response.isSuccessful) {
-//                    val episodeName = response.body()?.name ?: "???"
-//                    callback(episodeName)
-//                } else {
-//                    callback("???")
-//                }
-//            }
-//
-//            override fun onFailure(call: Call<Episode>, t: Throwable) {
-//                callback("???")
-//            }
-//        })
-//    }
+    fun getCharactersPaging(): LiveData<PagingData<Character>>{
+        return Pager(
+            config = PagingConfig(
+                pageSize = 20,
+                prefetchDistance = 2,
+                initialLoadSize = 20 * 2
+            ),
+            pagingSourceFactory = {pagingSource}
+        ).liveData
+    }
 
     fun getEpisodeNameForCharacter(episodeUrl: String, callback: (String) -> Unit) {
-        // Если значение уже есть в кэше, возвращаем его и выходим
         episodeCache[episodeUrl]?.let { cachedName ->
             callback(cachedName)
             return
         }
 
-        // Иначе делаем сетевой запрос
         api.getEpisodeName(episodeUrl).enqueue(object : Callback<Episode> {
             override fun onResponse(call: Call<Episode>, response: Response<Episode>) {
                 val fetchedName = if (response.isSuccessful) {
@@ -89,7 +88,6 @@ class CharactersViewModel @Inject constructor(
                 } else {
                     "???"
                 }
-                // Сохраняем в кэш
                 episodeCache[episodeUrl] = fetchedName
                 callback(fetchedName)
             }

@@ -6,6 +6,8 @@
     import android.view.View
     import android.view.ViewGroup
     import androidx.fragment.app.viewModels
+    import androidx.lifecycle.lifecycleScope
+    import androidx.navigation.NavOptions
     import androidx.navigation.fragment.findNavController
     import androidx.recyclerview.widget.LinearLayoutManager
     import com.example.m5lesson4_retrofitmvvm_rickandmortyapi.data.models.Character
@@ -15,9 +17,11 @@
     import com.example.m5lesson4_retrofitmvvm_rickandmortyapi.ui.interfaces.OnItemClick
     import com.example.m5lesson4_retrofitmvvm_rickandmortyapi.viewmodels.CharactersViewModel
     import dagger.hilt.android.AndroidEntryPoint
+    import kotlinx.coroutines.launch
 
     @AndroidEntryPoint
     class CharactersFragment : Fragment(), OnItemClick {
+
 
         private lateinit var binding: FragmentCharactersBinding
         private val viewModel: CharactersViewModel by viewModels()
@@ -37,11 +41,12 @@
         override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
             super.onViewCreated(view, savedInstanceState)
             setupRecyclerView()
-            viewModel.getCharacters()
-
-            viewModel.charactersData.observe(viewLifecycleOwner) { data ->
-                adapter.submitList(data)
+            viewModel.getCharactersPaging().observe(viewLifecycleOwner) { pagingData ->
+                lifecycleScope.launch {
+                    adapter.submitData(pagingData)
+                }
             }
+
         }
          private fun setupRecyclerView() = with(binding.recyclerView) {
              layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)

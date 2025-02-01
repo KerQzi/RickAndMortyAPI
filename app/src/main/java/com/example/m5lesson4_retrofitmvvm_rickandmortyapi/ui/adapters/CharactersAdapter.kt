@@ -2,6 +2,8 @@
 
     import android.view.LayoutInflater
     import android.view.ViewGroup
+    import androidx.paging.PagingData
+    import androidx.paging.PagingDataAdapter
     import androidx.recyclerview.widget.DiffUtil
     import androidx.recyclerview.widget.ListAdapter
     import androidx.recyclerview.widget.RecyclerView
@@ -12,7 +14,7 @@
     import com.example.m5lesson4_retrofitmvvm_rickandmortyapi.ui.interfaces.OnItemClick
     import com.example.m5lesson4_retrofitmvvm_rickandmortyapi.viewmodels.CharactersViewModel
 
-    class CharactersAdapter(private val viewModel: CharactersViewModel, private val onClick: OnItemClick) : ListAdapter<Character, CharactersAdapter.ViewHolder>(DiffCallback()) {
+    class CharactersAdapter(private val viewModel: CharactersViewModel, private val onClick: OnItemClick) : PagingDataAdapter<Character, CharactersAdapter.ViewHolder>(DiffCallback()) {
 
         class ViewHolder(private val binding: CharacterItemBinding, private val viewModel: CharactersViewModel) : RecyclerView.ViewHolder(binding.root) {
 
@@ -47,7 +49,7 @@
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
             holder.bind(getItem(position))
             holder.itemView.setOnClickListener {
-                onClick.onItemClick(getItem(position))
+                onClick.onItemClick(getItem(position)!!)
             }
         }
 
